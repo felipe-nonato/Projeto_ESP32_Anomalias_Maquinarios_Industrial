@@ -35,8 +35,6 @@ Este repositório contém principalmente a parte do front‑end (dashboard e map
 - Botão físico para iniciar gravação
 - Opcional: case/PCB para integração final
 
-BoM resumida (ver proposta):
-- [Proposta_Projeto_ESP32_Anomalias.md](/home/daniel/Downloads/Proposta_Projeto_ESP32_Anomalias.md)
 
 ## Formato de dados (payload esperado)
 
