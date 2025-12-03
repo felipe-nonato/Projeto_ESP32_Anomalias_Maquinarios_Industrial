@@ -2,7 +2,7 @@
 
 Sistema completo de detecção de anomalias em maquinários industriais com solução embarcada (ESP32 + INMP441), modelo de Machine Learning (Edge Impulse) e dashboard web com mapa interativo para monitoramento em tempo real.
 
-Este repositório contém principalmente a parte do front‑end (dashboard e mapas), enquanto a proposta e a implementação do protótipo embarcado estão descritas em [Proposta_Projeto_ESP32_Anomalias.md](/home/daniel/Downloads/Proposta_Projeto_ESP32_Anomalias.md) e no PDF associado [/home/daniel/Downloads/Proposta_Projeto_ESP32_Anomalias-1.pdf]. Consulte também este README: [README.md](README.md).
+Este repositório contém principalmente a parte do front‑end (dashboard e mapas), enquanto a proposta e a implementação do protótipo embarcado estão em:
 
 ## Visão geral do sistema (end‑to‑end)
 
