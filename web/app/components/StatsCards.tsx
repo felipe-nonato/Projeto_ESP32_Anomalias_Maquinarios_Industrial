@@ -1,6 +1,7 @@
 'use client';
 
 import { MachineStatus } from '../types';
+import { FaIndustry, FaCheckCircle, FaExclamationTriangle, FaExclamationCircle, FaSearch } from 'react-icons/fa';
 
 interface StatsCardsProps {
   machines: MachineStatus[];
@@ -18,31 +19,31 @@ export default function StatsCards({ machines }: StatsCardsProps) {
       label: 'Total de Máquinas',
       value: totalMachines,
       color: 'bg-blue-500',
-      icon: '🏭'
+      icon: <FaIndustry />
     },
     {
       label: 'Status Normal',
       value: normalCount,
       color: 'bg-green-500',
-      icon: '✅'
+      icon: <FaCheckCircle />
     },
     {
       label: 'Avisos',
       value: warningCount,
       color: 'bg-yellow-500',
-      icon: '⚠️'
+      icon: <FaExclamationTriangle />
     },
     {
       label: 'Crítico',
       value: criticalCount,
       color: 'bg-red-500',
-      icon: '🚨'
+      icon: <FaExclamationCircle />
     },
     {
       label: 'Anomalias Detectadas',
       value: anomaliesDetected,
       color: 'bg-purple-500',
-      icon: '🔍'
+      icon: <FaSearch />
     }
   ];
 

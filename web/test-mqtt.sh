@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Script para testar o dashboard enviando dados MQTT simulados
+# Formato simplificado: label (normal/anomalous) e score (0-1)
 # Requer mosquitto_pub instalado
 
 BROKER="localhost"
@@ -10,54 +11,59 @@ TOPIC="machines/anomalies"
 echo "📡 Enviando dados simulados para MQTT..."
 echo "Broker: $BROKER:$PORT"
 echo "Tópico: $TOPIC"
+echo "Formato: {label: normal|anomalous, score: 0-1}"
 echo ""
 
-# Máquina 1 - Normal
-echo "✅ Enviando dados da Máquina 1 (Normal)..."
+# Teste 1 - Normal (baixa confiança)
+echo "✅ Enviando: Normal - Score 0.15..."
 mosquitto_pub -h "$BROKER" -p "$PORT" -t "$TOPIC" -m '{
-  "device_id": "maquina-01",
-  "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-  "location": {"lat": -23.55052, "lng": -46.633308},
-  "sensors": {"vibration": 0.05, "temperature": 65.2, "current": 2.1},
-  "anomaly": {"detected": false, "score": 0.15, "severity": "low", "type": "none"}
+  "label": "normal",
+  "score": 0.15
 }'
 
-sleep 1
+sleep 2
 
-# Máquina 2 - Warning
-echo "⚠️  Enviando dados da Máquina 2 (Warning)..."
+# Teste 2 - Normal (alta confiança)
+echo "✅ Enviando: Normal - Score 0.95..."
 mosquitto_pub -h "$BROKER" -p "$PORT" -t "$TOPIC" -m '{
-  "device_id": "maquina-02",
-  "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-  "location": {"lat": -23.55152, "lng": -46.634308},
-  "sensors": {"vibration": 0.18, "temperature": 72.5, "current": 2.5},
-  "anomaly": {"detected": true, "score": 0.65, "severity": "medium", "type": "vibration"}
+  "label": "normal",
+  "score": 0.95
 }'
 
-sleep 1
+sleep 2
 
-# Máquina 3 - Critical
-echo "🚨 Enviando dados da Máquina 3 (Critical)..."
+# Teste 3 - Anômalo (média confiança - warning)
+echo "⚠️  Enviando: Anômalo - Score 0.65 (Warning)..."
 mosquitto_pub -h "$BROKER" -p "$PORT" -t "$TOPIC" -m '{
-  "device_id": "maquina-03",
-  "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-  "location": {"lat": -23.54952, "lng": -46.632308},
-  "sensors": {"vibration": 0.35, "temperature": 85.8, "current": 3.2},
-  "anomaly": {"detected": true, "score": 0.92, "severity": "high", "type": "bearing"}
+  "label": "anomalous",
+  "score": 0.65
 }'
 
-sleep 1
+sleep 2
 
-# Máquina 4 - Normal
-echo "✅ Enviando dados da Máquina 4 (Normal)..."
+# Teste 4 - Anômalo (alta confiança - critical)
+echo "🚨 Enviando: Anômalo - Score 0.92 (Critical)..."
 mosquitto_pub -h "$BROKER" -p "$PORT" -t "$TOPIC" -m '{
-  "device_id": "maquina-04",
-  "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-  "location": {"lat": -23.55252, "lng": -46.631308},
-  "sensors": {"vibration": 0.08, "temperature": 67.1, "current": 2.0},
-  "anomaly": {"detected": false, "score": 0.22, "severity": "low", "type": "none"}
+  "label": "anomalous",
+  "score": 0.92
+}'
+
+sleep 2
+
+# Teste 5 - Anômalo (baixa confiança)
+echo "⚠️  Enviando: Anômalo - Score 0.45..."
+mosquitto_pub -h "$BROKER" -p "$PORT" -t "$TOPIC" -m '{
+  "label": "anomalous",
+  "score": 0.45
 }'
 
 echo ""
 echo "✨ Dados enviados com sucesso!"
+echo "Legenda:"
+echo "  • Normal: label='normal'"
+echo "  • Anômalo: label='anomalous'"
+echo "  • Score > 0.8: Critical (vermelho)"
+echo "  • Score 0.5-0.8: Warning (amarelo)"
+echo "  • Score < 0.5: Normal (verde)"
+echo ""
 echo "Acesse http://localhost:3000 para ver o dashboard"

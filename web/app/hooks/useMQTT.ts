@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import mqtt, { MqttClient } from 'mqtt';
-import { MachineData, MachineStatus } from '../types';
+import { MachineData, MachineStatus, MQTTPayload } from '../types';
 
 export function useMQTT(brokerUrl: string, topic: string) {
   const [machines, setMachines] = useState<MachineStatus[]>([]);
@@ -30,19 +30,52 @@ export function useMQTT(brokerUrl: string, topic: string) {
 
     client.on('message', (receivedTopic, message) => {
       try {
-        const data: MachineData = JSON.parse(message.toString());
-        console.log('Dados recebidos:', data);
+        const mqttPayload: MQTTPayload = JSON.parse(message.toString());
+        console.log('Dados recebidos do MQTT:', mqttPayload);
 
-        // Determinar status baseado na anomalia
+        // Determinar status e severidade baseado no label e score
+        const isAnomalous = mqttPayload.label === 'anomalous';
+        const score = mqttPayload.score;
+        
         let status: 'normal' | 'warning' | 'critical' = 'normal';
-        if (data.anomaly.detected) {
-          status = data.anomaly.severity === 'high' ? 'critical' : 
-                   data.anomaly.severity === 'medium' ? 'warning' : 'normal';
+        let severity: 'low' | 'medium' | 'high' = 'low';
+        
+        if (isAnomalous) {
+          // Score alto (>0.8) = crítico, médio (0.5-0.8) = aviso, baixo (<0.5) = normal
+          if (score > 0.8) {
+            status = 'critical';
+            severity = 'high';
+          } else if (score > 0.5) {
+            status = 'warning';
+            severity = 'medium';
+          } else {
+            status = 'normal';
+            severity = 'low';
+          }
         }
+
+        // Criar dados estruturados a partir do payload MQTT
+        const data: MachineData = {
+          device_id: `machine-${Date.now()}`, // ID único baseado em timestamp
+          timestamp: new Date().toISOString(),
+          location: { lat: -23.5505, lng: -46.6333 }, // Localização padrão (São Paulo)
+          sensors: {
+            vibration: 0,
+            temperature: 0,
+            current: 0
+          },
+          anomaly: {
+            detected: isAnomalous,
+            score: score,
+            severity: severity,
+            type: isAnomalous ? 'anomaly' : 'none'
+          },
+          mqttData: mqttPayload
+        };
 
         const machineStatus: MachineStatus = {
           id: data.device_id,
-          name: data.device_id.replace('-', ' ').toUpperCase(),
+          name: `Máquina ${isAnomalous ? 'ANORMAL' : 'Normal'}`,
           status,
           lastUpdate: data.timestamp,
           data,

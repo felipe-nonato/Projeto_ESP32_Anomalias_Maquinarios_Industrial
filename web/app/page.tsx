@@ -6,6 +6,7 @@ import { useMQTT } from './hooks/useMQTT';
 import StatsCards from './components/StatsCards';
 import MachineCard from './components/MachineCard';
 import { Activity, Wifi, WifiOff } from 'lucide-react';
+import { FaMap, FaList, FaInfoCircle } from 'react-icons/fa';
 
 // Importar MapComponent dinamicamente para evitar problemas com SSR
 const MapComponent = dynamic(() => import('./components/MapComponent'), {
@@ -67,23 +68,23 @@ export default function Home() {
         <div className="mb-4 flex gap-2">
           <button
             onClick={() => setSelectedTab('map')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
               selectedTab === 'map'
                 ? 'bg-blue-500 text-white'
                 : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
             }`}
           >
-            🗺️ Mapa
+            <FaMap /> Mapa
           </button>
           <button
             onClick={() => setSelectedTab('list')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
               selectedTab === 'list'
                 ? 'bg-blue-500 text-white'
                 : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
             }`}
           >
-            📋 Lista
+            <FaList /> Lista
           </button>
         </div>
 
@@ -139,8 +140,8 @@ export default function Home() {
 
         {/* Info Box */}
         <div className="mt-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-            ℹ️ Como usar este dashboard
+          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+            <FaInfoCircle /> Como usar este dashboard
           </h3>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
             <li>• Configure as variáveis de ambiente NEXT_PUBLIC_MQTT_BROKER e NEXT_PUBLIC_MQTT_TOPIC</li>
