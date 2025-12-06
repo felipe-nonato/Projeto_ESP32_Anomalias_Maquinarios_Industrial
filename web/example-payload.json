@@ -1,0 +1,58 @@
+{
+  "description": "Formato simplificado do payload MQTT para detecção de anomalias",
+  "topic": "machines/anomalies",
+  
+  "examples": [
+    {
+      "case": "Máquina operando normalmente",
+      "payload": {
+        "label": "normal",
+        "score": 0.95
+      }
+    },
+    {
+      "case": "Anomalia detectada com baixa confiança",
+      "payload": {
+        "label": "anomalous",
+        "score": 0.45
+      }
+    },
+    {
+      "case": "Anomalia detectada com média confiança (Warning)",
+      "payload": {
+        "label": "anomalous",
+        "score": 0.65
+      }
+    },
+    {
+      "case": "Anomalia detectada com alta confiança (Critical)",
+      "payload": {
+        "label": "anomalous",
+        "score": 0.92
+      }
+    }
+  ],
+  
+  "schema": {
+    "label": {
+      "type": "string",
+      "enum": ["normal", "anomalous"],
+      "description": "Status da máquina: normal ou anômalo"
+    },
+    "score": {
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "description": "Confiança da predição (0 a 1)"
+    }
+  },
+  
+  "interpretation": {
+    "status_mapping": {
+      "label='normal'": "Máquina operando normalmente",
+      "label='anomalous' + score > 0.8": "Status Critical (vermelho)",
+      "label='anomalous' + score 0.5-0.8": "Status Warning (amarelo)",
+      "label='anomalous' + score < 0.5": "Status Normal (verde)"
+    }
+  }
+}
