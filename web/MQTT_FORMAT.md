@@ -93,11 +93,11 @@ Ou envie manualmente com mosquitto_pub:
 
 ```bash
 # Normal
-mosquitto_pub -h localhost -p 1883 -t machines/anomalies \
+mosquitto_pub -h localhost -p 1883 -t /machine/audio/inference \
   -m '{"label": "normal", "score": 0.95}'
 
 # Anomalia crítica
-mosquitto_pub -h localhost -p 1883 -t machines/anomalies \
+mosquitto_pub -h localhost -p 1883 -t /machine/audio/inference \
   -m '{"label": "anomalous", "score": 0.92}'
 ```
 

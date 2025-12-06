@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useMQTT } from './hooks/useMQTT';
+import { useAPI } from './hooks/useAPI';
 import StatsCards from './components/StatsCards';
 import MachineCard from './components/MachineCard';
-import { Activity, Wifi, WifiOff } from 'lucide-react';
+import { Activity, Wifi, WifiOff, Database } from 'lucide-react';
 import { FaMap, FaList, FaInfoCircle } from 'react-icons/fa';
 
 // Importar MapComponent dinamicamente para evitar problemas com SSR
@@ -15,12 +16,21 @@ const MapComponent = dynamic(() => import('./components/MapComponent'), {
 });
 
 export default function Home() {
-  // Configurações do MQTT - ajuste conforme seu broker
-  const MQTT_BROKER = process.env.NEXT_PUBLIC_MQTT_BROKER || 'ws://localhost:9001';
-  const MQTT_TOPIC = process.env.NEXT_PUBLIC_MQTT_TOPIC || 'machines/anomalies';
-  
-  const { machines, connected } = useMQTT(MQTT_BROKER, MQTT_TOPIC);
+  // Modo de dados: 'mqtt' para tempo real direto, 'api' para dados do servidor com histórico
+  const [dataMode, setDataMode] = useState<'mqtt' | 'api'>('api');
   const [selectedTab, setSelectedTab] = useState<'map' | 'list'>('map');
+  
+  // Configurações do MQTT (modo direto)
+  const MQTT_BROKER = process.env.NEXT_PUBLIC_MQTT_BROKER || 'ws://localhost:9001';
+  const MQTT_TOPIC = process.env.NEXT_PUBLIC_MQTT_TOPIC || '/machine/audio/inference';
+  
+  const mqttData = useMQTT(MQTT_BROKER, MQTT_TOPIC);
+  const apiData = useAPI();
+  
+  // Selecionar fonte de dados baseado no modo
+  const { machines, connected } = dataMode === 'mqtt' 
+    ? { machines: mqttData.machines, connected: mqttData.connected }
+    : { machines: apiData.machines, connected: !apiData.error };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -40,7 +50,34 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              {/* Modo de dados */}
+              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
+                <button
+                  onClick={() => setDataMode('mqtt')}
+                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                    dataMode === 'mqtt'
+                      ? 'bg-blue-500 text-white'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  <Wifi className="w-4 h-4 inline mr-1" />
+                  MQTT
+                </button>
+                <button
+                  onClick={() => setDataMode('api')}
+                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                    dataMode === 'api'
+                      ? 'bg-blue-500 text-white'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  <Database className="w-4 h-4 inline mr-1" />
+                  API
+                </button>
+              </div>
+              
+              {/* Status de conexão */}
               {connected ? (
                 <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                   <Wifi className="w-5 h-5" />

@@ -1,18 +1,38 @@
 # Dashboard Web - Monitoramento de Anomalias Industriais
 
-Dashboard interativo desenvolvido em Next.js 16 para monitoramento em tempo real de anomalias em maquinários industriais através de MQTT.
+Sistema completo de monitoramento em tempo real de anomalias em maquinários industriais com ESP32, MQTT, Express API e Next.js.
+
+## 🏗️ Arquitetura
+
+```
+ESP32 → MQTT Broker (Mosquitto) → Express API → SQLite Database
+                                        ↓
+                                  Next.js Frontend
+```
 
 ## 🚀 Funcionalidades
 
+### Frontend
 - **Conexão MQTT em tempo real** - Recebe dados dos dispositivos ESP32
-- **Mapa interativo** - Visualização geográfica das máquinas com Leaflet
+- **API REST com histórico** - Consulta dados salvos no banco
+- **Modo duplo**: MQTT direto ou API com histórico
+- **Mapa interativo** - Visualização geográfica das máquinas
 - **KPIs e Estatísticas** - Cards com resumo do status das máquinas
 - **Alertas de Anomalias** - Notificações visuais quando anomalias são detectadas
 - **Dashboard Responsivo** - Interface adaptável para desktop e mobile
 - **Modo Escuro** - Suporte automático ao tema escuro
 
+### Backend (Servidor Express)
+- **API REST completa** - Endpoints para consultar dados históricos
+- **Banco SQLite** - Armazena todas as leituras com timestamp
+- **Integração MQTT** - Recebe e processa dados do ESP32
+- **WebSocket** - Atualizações em tempo real via Socket.io
+- **Estatísticas** - Agregações e análises de dados
+- **Limpeza automática** - Remove dados antigos (30 dias)
+
 ## 📦 Tecnologias
 
+### Frontend
 - **Next.js 16** - Framework React com App Router
 - **TypeScript** - Tipagem estática
 - **Tailwind CSS 4** - Estilização
@@ -20,14 +40,49 @@ Dashboard interativo desenvolvido em Next.js 16 para monitoramento em tempo real
 - **React Leaflet** - Mapa interativo com OpenStreetMap
 - **Lucide React** - Ícones modernos
 
-## 🔧 Instalação
+### Backend
+- **Express.js** - Framework web Node.js
+- **SQLite3** - Banco de dados leve e eficiente
+- **MQTT.js** - Cliente MQTT para Node.js
+- **Socket.io** - WebSocket para tempo real
+- **CORS** - Cross-Origin Resource Sharing
 
+### Infraestrutura
+- **Eclipse Mosquitto** - Broker MQTT em Docker
+- **Docker Compose** - Orquestração de containers
+
+## 🚀 Início Rápido
+
+### Opção 1: Script Automático (Recomendado)
 ```bash
-# Instalar dependências
-npm install
+# Iniciar todo o sistema
+./start-system.sh
 
-# Copiar e configurar variáveis de ambiente
-cp .env.example .env.local
+# Depois, em outro terminal
+npm run dev
+
+# Para parar tudo
+./stop-system.sh
+```
+
+### Opção 2: Manual
+
+#### 1. Iniciar MQTT Broker
+```bash
+sudo docker compose up -d
+```
+
+#### 2. Iniciar Servidor Express
+```bash
+cd server
+npm install
+node index.js
+```
+
+#### 3. Iniciar Frontend
+```bash
+npm install
+npm run dev
 ```
 
 ## ⚙️ Configuração
