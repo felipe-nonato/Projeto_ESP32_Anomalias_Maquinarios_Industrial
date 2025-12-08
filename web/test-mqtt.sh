@@ -6,7 +6,7 @@
 
 BROKER="localhost"
 PORT="1883"
-TOPIC="machines/anomalies"
+TOPIC="/machine/audio/inference"
 
 echo "📡 Enviando dados simulados para MQTT..."
 echo "Broker: $BROKER:$PORT"
