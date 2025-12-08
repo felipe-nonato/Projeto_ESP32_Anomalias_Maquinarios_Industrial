@@ -2,11 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 import mqtt, { MqttClient } from 'mqtt';
-import { MachineData, MachineStatus, MQTTPayload } from '../types';
+import { MachineData, MachineStatus, MQTTPayload, Device, Location } from '../types';
 
-export function useMQTT(brokerUrl: string, topic: string) {
+interface UseMQTTReturn {
+  machines: MachineStatus[];
+  connected: boolean;
+}
+
+export function useMQTT(brokerUrl: string, topic: string): UseMQTTReturn {
   const [machines, setMachines] = useState<MachineStatus[]>([]);
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState<boolean>(false);
   const clientRef = useRef<MqttClient | null>(null);
 
   useEffect(() => {
@@ -28,14 +33,20 @@ export function useMQTT(brokerUrl: string, topic: string) {
       });
     });
 
-    client.on('message', (receivedTopic, message) => {
+    client.on('message', (receivedTopic: string, message: Buffer) => {
       try {
         const mqttPayload: MQTTPayload = JSON.parse(message.toString());
         console.log('Dados recebidos do MQTT:', mqttPayload);
 
+        // Validar se device_id está presente
+        if (!mqttPayload.device_id) {
+          console.error('device_id não encontrado no payload');
+          return;
+        }
+
         // Determinar status e severidade baseado no label e score
-        const isAnomalous = mqttPayload.label === 'anomalous';
-        const score = mqttPayload.score;
+        const isAnomalous: boolean = mqttPayload.label === 'anomalous';
+        const score: number = mqttPayload.score;
         
         let status: 'normal' | 'warning' | 'critical' = 'normal';
         let severity: 'low' | 'medium' | 'high' = 'low';
@@ -54,11 +65,29 @@ export function useMQTT(brokerUrl: string, topic: string) {
           }
         }
 
+        // Buscar informações do dispositivo do localStorage
+        const savedDevices: string | null = localStorage.getItem('devices');
+        let deviceName: string = `Dispositivo ${mqttPayload.device_id.substring(0, 8)}`;
+        let deviceLocation: Location = { lat: -23.5505, lng: -46.6333 }; // Localização padrão (São Paulo)
+        
+        if (savedDevices) {
+          try {
+            const devices: Device[] = JSON.parse(savedDevices);
+            const device: Device | undefined = devices.find((d: Device) => d.id === mqttPayload.device_id);
+            if (device) {
+              deviceName = device.name;
+              deviceLocation = device.location;
+            }
+          } catch (e: unknown) {
+            console.error('Erro ao buscar dispositivos salvos:', e);
+          }
+        }
+
         // Criar dados estruturados a partir do payload MQTT
         const data: MachineData = {
-          device_id: `machine-${Date.now()}`, // ID único baseado em timestamp
+          device_id: mqttPayload.device_id,
           timestamp: new Date().toISOString(),
-          location: { lat: -23.5505, lng: -46.6333 }, // Localização padrão (São Paulo)
+          location: deviceLocation,
           sensors: {
             vibration: 0,
             temperature: 0,
@@ -75,7 +104,7 @@ export function useMQTT(brokerUrl: string, topic: string) {
 
         const machineStatus: MachineStatus = {
           id: data.device_id,
-          name: `Máquina ${isAnomalous ? 'ANORMAL' : 'Normal'}`,
+          name: deviceName,
           status,
           lastUpdate: data.timestamp,
           data,

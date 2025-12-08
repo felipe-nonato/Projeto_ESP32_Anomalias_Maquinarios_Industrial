@@ -5,8 +5,9 @@ import dynamic from 'next/dynamic';
 import { useMQTT } from './hooks/useMQTT';
 import StatsCards from './components/StatsCards';
 import MachineCard from './components/MachineCard';
+import DeviceManager from './components/DeviceManager';
 import { Activity, Wifi, WifiOff } from 'lucide-react';
-import { FaMap, FaList, FaInfoCircle } from 'react-icons/fa';
+import { FaMap, FaList, FaInfoCircle, FaCog } from 'react-icons/fa';
 
 // Importar MapComponent dinamicamente para evitar problemas com SSR
 const MapComponent = dynamic(() => import('./components/MapComponent'), {
@@ -14,13 +15,16 @@ const MapComponent = dynamic(() => import('./components/MapComponent'), {
   loading: () => <div className="w-full h-[500px] bg-zinc-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
 });
 
-export default function Home() {
+type TabType = 'map' | 'list';
+
+export default function Home(): JSX.Element {
   // Configurações do MQTT - ajuste conforme seu broker
-  const MQTT_BROKER = process.env.NEXT_PUBLIC_MQTT_BROKER || 'ws://localhost:9001';
-  const MQTT_TOPIC = process.env.NEXT_PUBLIC_MQTT_TOPIC || 'machines/anomalies';
+  const MQTT_BROKER: string = process.env.NEXT_PUBLIC_MQTT_BROKER || 'ws://localhost:9001';
+  const MQTT_TOPIC: string = process.env.NEXT_PUBLIC_MQTT_TOPIC || 'machines/anomalies';
   
   const { machines, connected } = useMQTT(MQTT_BROKER, MQTT_TOPIC);
-  const [selectedTab, setSelectedTab] = useState<'map' | 'list'>('map');
+  const [selectedTab, setSelectedTab] = useState<TabType>('map');
+  const [isDeviceManagerOpen, setIsDeviceManagerOpen] = useState<boolean>(false);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -40,7 +44,15 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setIsDeviceManagerOpen(true)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 font-medium"
+                title="Gerenciar Dispositivos"
+              >
+                <FaCog /> Dispositivos
+              </button>
+              
               {connected ? (
                 <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                   <Wifi className="w-5 h-5" />
@@ -151,6 +163,12 @@ export default function Home() {
           </ul>
         </div>
       </main>
+
+      {/* Device Manager Modal */}
+      <DeviceManager 
+        isOpen={isDeviceManagerOpen} 
+        onClose={() => setIsDeviceManagerOpen(false)} 
+      />
     </div>
   );
 }

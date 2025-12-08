@@ -1,6 +1,6 @@
 'use client';
 
-import { MachineStatus } from '../types';
+import { MachineStatus, MQTTPayload } from '../types';
 import { AlertCircle, Activity, Thermometer, Zap } from 'lucide-react';
 import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 
@@ -8,18 +8,18 @@ interface MachineCardProps {
   machine: MachineStatus;
 }
 
-export default function MachineCard({ machine }: MachineCardProps) {
-  const statusColor = 
+export default function MachineCard({ machine }: MachineCardProps): JSX.Element {
+  const statusColor: string = 
     machine.status === 'critical' ? 'bg-red-100 border-red-500 text-red-900 dark:bg-red-900 dark:text-red-100' :
     machine.status === 'warning' ? 'bg-yellow-100 border-yellow-500 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-100' :
     'bg-green-100 border-green-500 text-green-900 dark:bg-green-900 dark:text-green-100';
 
-  const statusIcon = 
+  const statusIcon: JSX.Element = 
     machine.status === 'critical' || machine.status === 'warning' ? 
     <AlertCircle className="w-5 h-5" /> :
     <Activity className="w-5 h-5" />;
 
-  const mqttData = machine.data.mqttData;
+  const mqttData: MQTTPayload | undefined = machine.data.mqttData;
 
   return (
     <div className={`border-l-4 rounded-lg p-4 shadow-md ${statusColor} bg-opacity-50`}>

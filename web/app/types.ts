@@ -11,8 +11,18 @@ export interface Sensors {
 
 // Formato simplificado recebido do ESP32
 export interface MQTTPayload {
+  device_id: string;               // ID único do dispositivo
   label: "normal" | "anomalous";  // Status da máquina
   score: number;                   // Confiança da predição (0-1)
+}
+
+// Interface para gerenciamento de dispositivos
+export interface Device {
+  id: string;
+  name: string;
+  location: Location;
+  description?: string;
+  addedAt: string;
 }
 
 export interface Anomaly {

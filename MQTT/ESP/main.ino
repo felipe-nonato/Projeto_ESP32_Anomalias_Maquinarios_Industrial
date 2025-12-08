@@ -10,11 +10,11 @@
 // ======================================================================
 // ------------------------- CONFIGURAÇÃO MQTT ---------------------------
 // ======================================================================
-const char* ssid = "brisa-1112219";
-const char* password = "fklmqq7m";
+const char *ssid = "brisa-1112219";
+const char *password = "fklmqq7m";
 
 // IP da máquina onde o Mosquitto está rodando
-const char* mqtt_server = "192.168.1.14";  
+const char *mqtt_server = "192.168.1.14";
 const int mqtt_port = 1883;
 
 WiFiClient espClient;
@@ -32,8 +32,8 @@ PubSubClient client(espClient);
 // --- Cartão SD ---
 #define SD_MISO 19
 #define SD_MOSI 23
-#define SD_SCK  18
-#define SD_CS   5
+#define SD_SCK 18
+#define SD_CS 5
 
 // --- LCD ---
 #define I2C_SDA 26
@@ -44,9 +44,9 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define BUTTON_PIN 4
 
 // --- Parâmetros ---
-#define SAMPLE_RATE     16000
+#define SAMPLE_RATE 16000
 #define RECORD_TIME_SEC 10
-#define BUFFER_SIZE     1024
+#define BUFFER_SIZE 1024
 
 const char *filename = "/audio.raw";
 
@@ -55,14 +55,16 @@ const char *filename = "/audio.raw";
 // ======================================================================
 
 // Conecta ao WiFi
-void setup_wifi() {
+void setup_wifi()
+{
   lcd.clear();
   lcd.print("WiFi...");
 
   WiFi.begin(ssid, password);
   Serial.print("Conectando ao WiFi ");
 
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print(".");
   }
@@ -76,13 +78,18 @@ void setup_wifi() {
 }
 
 // Reconecta MQTT caso caia
-void reconnectMQTT() {
-  while (!client.connected()) {
+void reconnectMQTT()
+{
+  while (!client.connected())
+  {
     Serial.print("Conectando MQTT... ");
 
-    if (client.connect("ESP32_Anomalia")) {
+    if (client.connect("ESP32_Anomalia"))
+    {
       Serial.println("Conectado ao Broker!");
-    } else {
+    }
+    else
+    {
       Serial.print("Falhou (rc=");
       Serial.print(client.state());
       Serial.println("), tentando em 5s");
@@ -94,7 +101,8 @@ void reconnectMQTT() {
 // ======================================================================
 // ----------------------- INICIALIZAÇÃO DO I2S --------------------------
 // ======================================================================
-void setupI2S() {
+void setupI2S()
+{
   const i2s_config_t i2s_config = {
       .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
       .sample_rate = SAMPLE_RATE,
@@ -106,15 +114,13 @@ void setupI2S() {
       .dma_buf_len = BUFFER_SIZE,
       .use_apll = false,
       .tx_desc_auto_clear = false,
-      .fixed_mclk = 0
-  };
+      .fixed_mclk = 0};
 
   const i2s_pin_config_t pin_config = {
       .bck_io_num = I2S_BCLK,
       .ws_io_num = I2S_LRCL,
       .data_out_num = I2S_PIN_NO_CHANGE,
-      .data_in_num = I2S_DOUT
-  };
+      .data_in_num = I2S_DOUT};
 
   i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
   i2s_set_pin(I2S_NUM_0, &pin_config);
@@ -124,9 +130,11 @@ void setupI2S() {
 // ======================================================================
 // ---------------------- GRAVAÇÃO DIRETO NO SD --------------------------
 // ======================================================================
-bool recordToSD(const char *filename, int seconds) {
+bool recordToSD(const char *filename, int seconds)
+{
   File audioFile = SD.open(filename, FILE_WRITE);
-  if (!audioFile) {
+  if (!audioFile)
+  {
     lcd.clear();
     lcd.print("Erro SD!");
     return false;
@@ -142,18 +150,21 @@ bool recordToSD(const char *filename, int seconds) {
   size_t bytesRead;
   unsigned long start = millis();
 
-  while (samplesWritten < totalSamples) {
+  while (samplesWritten < totalSamples)
+  {
     size_t bytesToRead = BUFFER_SIZE * sizeof(int32_t);
-    i2s_read(I2S_NUM_0, (void*)buffer32, bytesToRead, &bytesRead, portMAX_DELAY);
+    i2s_read(I2S_NUM_0, (void *)buffer32, bytesToRead, &bytesRead, portMAX_DELAY);
 
     int samples = bytesRead / sizeof(int32_t);
-    for (int i = 0; i < samples; i++) {
+    for (int i = 0; i < samples; i++)
+    {
       int16_t s = (int16_t)(buffer32[i] >> 14);
-      audioFile.write((byte*)&s, sizeof(int16_t));
+      audioFile.write((byte *)&s, sizeof(int16_t));
     }
 
     samplesWritten += samples;
-    if (millis() - start > seconds * 1000) break;
+    if (millis() - start > seconds * 1000)
+      break;
   }
 
   audioFile.close();
@@ -166,7 +177,8 @@ bool recordToSD(const char *filename, int seconds) {
 // ======================================================================
 // ------------------------------- SETUP --------------------------------
 // ======================================================================
-void setup() {
+void setup()
+{
   Serial.begin(115200);
 
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -179,15 +191,33 @@ void setup() {
   setupI2S();
 
   // Inicializa SD
-  if (!SD.begin(SD_CS)) {
+  if (!SD.begin(SD_CS))
+  {
     lcd.clear();
     lcd.print("Erro SD!");
-    while (true);
+    while (true)
+      ;
   }
 
   // Conecta WiFi + MQTT
   setup_wifi();
   client.setServer(mqtt_server, mqtt_port);
+
+  // Exibe Device ID no LCD e Serial
+  String deviceID = WiFi.macAddress();
+  deviceID.replace(":", "");
+
+  lcd.clear();
+  lcd.print("Device ID:");
+  lcd.setCursor(0, 1);
+  lcd.print(deviceID.substring(0, 16)); // Mostra primeiros 16 caracteres
+
+  Serial.println("=============================");
+  Serial.println("Device ID: " + deviceID);
+  Serial.println("MAC: " + WiFi.macAddress());
+  Serial.println("=============================");
+
+  delay(3000); // Mostra por 3 segundos
 
   lcd.clear();
   lcd.print("Pronto!");
@@ -196,18 +226,22 @@ void setup() {
 // ======================================================================
 // ------------------------------- LOOP ---------------------------------
 // ======================================================================
-void loop() {
-  if (!client.connected()) reconnectMQTT();
+void loop()
+{
+  if (!client.connected())
+    reconnectMQTT();
   client.loop();
 
-  if (digitalRead(BUTTON_PIN) == LOW) {
+  if (digitalRead(BUTTON_PIN) == LOW)
+  {
     delay(1000); // evita ruído do clique
 
     recordToSD(filename, RECORD_TIME_SEC);
 
     // Lê arquivo para inferir
     File f = SD.open(filename);
-    if (!f) {
+    if (!f)
+    {
       lcd.clear();
       lcd.print("Erro arquivo!");
       return;
@@ -218,8 +252,9 @@ void loop() {
     int16_t sample;
     int i = 0;
 
-    while (f.available() && i < NUM_READ) {
-      f.read((byte*)&sample, sizeof(sample));
+    while (f.available() && i < NUM_READ)
+    {
+      f.read((byte *)&sample, sizeof(sample));
       buffer[i++] = sample / 32768.0f;
     }
     f.close();
@@ -229,7 +264,8 @@ void loop() {
     ei_impulse_result_t result;
     EI_IMPULSE_ERROR res = run_classifier(&signal, &result, false);
 
-    if (res != EI_IMPULSE_OK) {
+    if (res != EI_IMPULSE_OK)
+    {
       lcd.clear();
       lcd.print("Erro infer!");
       return;
@@ -243,12 +279,17 @@ void loop() {
     // ------------------------------
     // Envia INFERÊNCIA via MQTT
     // ------------------------------
-    String jsonMsg =
-      "{\"label\":\"" + String(isAnomalia ? "anomalous" : "normal") +
-      "\",\"score\":" + String(isAnomalia ? anom : normal, 3) +
-      "}";
+    // ID único baseado no MAC Address do ESP32
+    String deviceID = WiFi.macAddress();
+    deviceID.replace(":", ""); // Remove ':' do MAC
 
-    client.publish("/machine/audio/inference", jsonMsg.c_str());
+    String jsonMsg =
+        "{\"device_id\":\"" + deviceID +
+        "\",\"label\":\"" + String(isAnomalia ? "anomalous" : "normal") +
+        "\",\"score\":" + String(isAnomalia ? anom : normal, 3) +
+        "}";
+
+    client.publish("machines/anomalies", jsonMsg.c_str());
 
     // ------------------------------
     // Atualiza LCD
