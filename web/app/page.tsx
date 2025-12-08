@@ -3,20 +3,11 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useMQTT } from './hooks/useMQTT';
-import { useAPI } from './hooks/useAPI';
 import StatsCards from './components/StatsCards';
 import MachineCard from './components/MachineCard';
-<<<<<<< HEAD
-<<<<<<< HEAD
 import DeviceManager from './components/DeviceManager';
 import { Activity, Wifi, WifiOff } from 'lucide-react';
 import { FaMap, FaList, FaInfoCircle, FaCog } from 'react-icons/fa';
-=======
-=======
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
-import { Activity, Wifi, WifiOff, Database } from 'lucide-react';
-import { FaMap, FaList, FaInfoCircle } from 'react-icons/fa';
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
 
 // Importar MapComponent dinamicamente para evitar problemas com SSR
 const MapComponent = dynamic(() => import('./components/MapComponent'), {
@@ -24,8 +15,6 @@ const MapComponent = dynamic(() => import('./components/MapComponent'), {
   loading: () => <div className="w-full h-[500px] bg-zinc-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 type TabType = 'map' | 'list';
 
 export default function Home(): JSX.Element {
@@ -36,29 +25,6 @@ export default function Home(): JSX.Element {
   const { machines, connected } = useMQTT(MQTT_BROKER, MQTT_TOPIC);
   const [selectedTab, setSelectedTab] = useState<TabType>('map');
   const [isDeviceManagerOpen, setIsDeviceManagerOpen] = useState<boolean>(false);
-=======
-=======
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
-export default function Home() {
-  // Modo de dados: 'mqtt' para tempo real direto, 'api' para dados do servidor com histórico
-  const [dataMode, setDataMode] = useState<'mqtt' | 'api'>('api');
-  const [selectedTab, setSelectedTab] = useState<'map' | 'list'>('map');
-  
-  // Configurações do MQTT (modo direto)
-  const MQTT_BROKER = process.env.NEXT_PUBLIC_MQTT_BROKER || 'ws://localhost:9001';
-  const MQTT_TOPIC = process.env.NEXT_PUBLIC_MQTT_TOPIC || '/machine/audio/inference';
-  
-  const mqttData = useMQTT(MQTT_BROKER, MQTT_TOPIC);
-  const apiData = useAPI();
-  
-  // Selecionar fonte de dados baseado no modo
-  const { machines, connected } = dataMode === 'mqtt' 
-    ? { machines: mqttData.machines, connected: mqttData.connected }
-    : { machines: apiData.machines, connected: !apiData.error };
-<<<<<<< HEAD
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
-=======
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -79,8 +45,6 @@ export default function Home() {
             </div>
             
             <div className="flex items-center gap-4">
-<<<<<<< HEAD
-<<<<<<< HEAD
               <button
                 onClick={() => setIsDeviceManagerOpen(true)}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 font-medium"
@@ -89,40 +53,6 @@ export default function Home() {
                 <FaCog /> Dispositivos
               </button>
               
-=======
-=======
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
-              {/* Modo de dados */}
-              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
-                <button
-                  onClick={() => setDataMode('mqtt')}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                    dataMode === 'mqtt'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                  }`}
-                >
-                  <Wifi className="w-4 h-4 inline mr-1" />
-                  MQTT
-                </button>
-                <button
-                  onClick={() => setDataMode('api')}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                    dataMode === 'api'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                  }`}
-                >
-                  <Database className="w-4 h-4 inline mr-1" />
-                  API
-                </button>
-              </div>
-              
-              {/* Status de conexão */}
-<<<<<<< HEAD
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
-=======
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
               {connected ? (
                 <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                   <Wifi className="w-5 h-5" />

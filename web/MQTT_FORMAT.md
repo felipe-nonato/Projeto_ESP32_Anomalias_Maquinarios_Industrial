@@ -99,28 +99,12 @@ Ou envie manualmente com mosquitto_pub:
 
 ```bash
 # Normal
-<<<<<<< HEAD
-<<<<<<< HEAD
 mosquitto_pub -h localhost -p 1883 -t machines/anomalies \
   -m '{"device_id": "TEST001", "label": "normal", "score": 0.95}'
 
 # Anomalia crítica
 mosquitto_pub -h localhost -p 1883 -t machines/anomalies \
   -m '{"device_id": "TEST001", "label": "anomalous", "score": 0.92}'
-=======
-mosquitto_pub -h localhost -p 1883 -t /machine/audio/inference \
-  -m '{"label": "normal", "score": 0.95}'
-
-# Anomalia crítica
-=======
-mosquitto_pub -h localhost -p 1883 -t /machine/audio/inference \
-  -m '{"label": "normal", "score": 0.95}'
-
-# Anomalia crítica
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
-mosquitto_pub -h localhost -p 1883 -t /machine/audio/inference \
-  -m '{"label": "anomalous", "score": 0.92}'
->>>>>>> d989c1bbcb15c33bf043bcb8e8f66161046a0e84
 ```
 
 ## 🔧 Configuração
