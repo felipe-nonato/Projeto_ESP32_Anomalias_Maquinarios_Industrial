@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Configuração MQTT
 const MQTT_BROKER = process.env.MQTT_BROKER || 'mqtt://localhost:1883';
-const MQTT_TOPIC = process.env.MQTT_TOPIC || '/machine/audio/inference';
+const MQTT_TOPIC = process.env.MQTT_TOPIC || 'machines/anomalies';
 
 let mqttClient = null;
 let connectionStatus = 'disconnected';

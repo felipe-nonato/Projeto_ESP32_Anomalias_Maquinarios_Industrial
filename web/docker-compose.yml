@@ -13,3 +13,22 @@ services:
     environment:
       - TZ=America/Sao_Paulo
     command: mosquitto -c /mosquitto/config/mosquito.conf
+
+  api-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: esp32-api-server
+    network_mode: host
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MQTT_BROKER=mqtt://localhost:1883
+      - MQTT_TOPIC=machines/anomalies
+      - TZ=America/Sao_Paulo
+    depends_on:
+      - mosquitto
