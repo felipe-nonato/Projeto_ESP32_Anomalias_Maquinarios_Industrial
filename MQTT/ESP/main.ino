@@ -10,11 +10,11 @@
 // ======================================================================
 // ------------------------- CONFIGURAÇÃO MQTT ---------------------------
 // ======================================================================
-const char *ssid = "brisa-1112219";
-const char *password = "fklmqq7m";
+const char *ssid = "";
+const char *password = "";
 
 // IP da máquina onde o Mosquitto está rodando
-const char *mqtt_server = "192.168.1.14";
+const char *mqtt_server = "";
 const int mqtt_port = 1883;
 
 WiFiClient espClient;
